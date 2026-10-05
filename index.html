@@ -306,15 +306,16 @@
     }
 
     .candles {
-  position: absolute;
-  top: -40px;
-  left: 0;
-  width: 100%;
-  display: flex;
-  justify-content: center; /* Center the whole group */
-  gap: 30px; /* Explicit gap between the candles */
-  padding: 0 10px; /* Reduced side padding to allow for gap to take effect */
-}
+      position: absolute;
+      top: -40px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center; /* Center the whole group */
+      gap: 30px; /* Explicit gap between the candles */
+      padding: 0 10px; /* Reduced side padding to allow for gap to take effect */
+    }
+
     .candle {
       width: 12px;
       height: 35px;
@@ -390,7 +391,11 @@
     <!-- Music & Celebration Controls -->
     <div class="music-bar">
       <button class="btn" id="musicBtn">🎵 Click to play our song</button>
-      <audio id="ourSong" src="timewilltell.mp3"></audio>
+      <audio id="ourSong" preload="auto">
+        <source src="marriedlife.mp3" type="audio/mpeg">
+        <source src="marriedlife.ogg" type="audio/ogg">
+        Your browser does not support the audio element.
+      </audio>
     </div>
 
     <!-- Live Time Together Counter -->
@@ -455,7 +460,7 @@
 
     <!-- Birthday Love Coupons Section -->
     <div class="glass-card">
-      <h2 style="font-family: 'Dancing Script', cursive; font-size: 2.2rem; color: #2e472d;">Birthday Love Coupons 🎟️️</h2>
+      <h2 style="font-family: 'Dancing Script', cursive; font-size: 2.2rem; color: #2e472d;">Birthday Love Coupons 🎟</h2>
       <p style="color: #556353; font-size: 0.95rem;">Tap any coupon to redeem your gift!</p>
       <div class="coupon-container">
         <button class="btn" onclick="redeemCoupon(this, '💆 Full Relaxing Massage')">💆 1x Full Massage</button>
@@ -679,22 +684,44 @@
     });
 
     // --- MP3 Audio Controls ---
-const audio = document.getElementById('ourSong');
-const musicBtn = document.getElementById('musicBtn');
+    const audio = document.getElementById('ourSong');
+    const musicBtn = document.getElementById('musicBtn');
 
-musicBtn.addEventListener('click', function() {
-  if (audio.paused) {
-    audio.play();
-    this.innerText = '⏸️ Pause Song';
-  } else {
-    audio.pause();
-    this.innerText = '🎵 Click to play Time Will Tell';
-  }
-});
+    let isAudioUnlocked = false;
 
-audio.addEventListener('ended', function() {
-  musicBtn.innerText = '🎵 Click to play Time Will Tell';
-});
+    // Unlocks browser audio policy on first user click/touch
+    function unlockAudio() {
+      if (!isAudioUnlocked) {
+        audio.load();
+        isAudioUnlocked = true;
+        document.removeEventListener('click', unlockAudio);
+        document.removeEventListener('touchstart', unlockAudio);
+      }
+    }
+    document.addEventListener('click', unlockAudio);
+    document.addEventListener('touchstart', unlockAudio);
+
+    musicBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (audio.paused) {
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            musicBtn.innerText = '⏸️ Pause Song';
+          }).catch(error => {
+            console.error("Playback failed:", error);
+            alert("Could not play audio. Please make sure 'marriedlife.mp3' is in the exact same folder as this HTML file.");
+          });
+        }
+      } else {
+        audio.pause();
+        musicBtn.innerText = '🎵 Click to play our song';
+      }
+    });
+
+    audio.addEventListener('ended', function() {
+      musicBtn.innerText = '🎵 Click to play our song';
+    });
   </script>
 </body>
 </html>
