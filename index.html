@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Birthday, My Love! 💕</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <style>
+    :root {
+      --primary: #4a6b49;
+      --secondary: #7fa17e;
+      --accent: #eaf0e7;
+      --gold: #d4af37;
+      --dark: #2c382b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #d3e0dc 0%, #ecefe6 99%, #c4d4c5 100%);
+      color: var(--dark);
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding-bottom: 50px;
+    }
+
+    /* Dim Overlay for Candle Wish Effect */
+    #dimOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 10000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s ease;
+    }
+
+    #dimOverlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Background Particle Canvas */
+    #particle-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Floating Heart Cursor Trail */
+    .heart-trail {
+      position: fixed;
+      pointer-events: none;
+      color: #6b8e63;
+      animation: floatUp 1.5s linear forwards;
+      z-index: 9999;
+      font-size: 1.2rem;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-80px) scale(0.3); opacity: 0; }
+    }
+
+    header {
+      text-align: center;
+      margin-top: 20px;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-family: 'Dancing Script', cursive;
+      font-size: 3.5rem;
+      color: #2e472d;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+      animation: pulse 2s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.03); }
+    }
+
+    .music-bar {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      background: white;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:hover, .btn:active {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+
+    /* Envelope */
+    .envelope-wrapper {
+      margin-bottom: 40px;
+    }
+
+    .envelope {
+      width: 280px;
+      height: 180px;
+      background: #7fa17e;
+      margin: 20px auto;
+      position: relative;
+      border-radius: 0 0 10px 10px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      transition: transform 0.3s;
+    }
+
+    .envelope:hover {
+      transform: scale(1.02);
+    }
+
+    .flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-left: 140px solid transparent;
+      border-right: 140px solid transparent;
+      border-top: 100px solid #4a6b49;
+      transform-origin: top;
+      transition: transform 0.5s ease;
+      z-index: 3;
+    }
+
+    .envelope.open .flap {
+      transform: rotateX(180deg);
+      z-index: 1;
+    }
+
+    .letter {
+      position: absolute;
+      bottom: 10px;
+      left: 15px;
+      width: 250px;
+      height: 150px;
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      transition: transform 0.5s ease 0.3s;
+      z-index: 2;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .envelope.open .letter {
+      transform: translateY(-110px) scale(1.1);
+      height: 220px;
+      z-index: 4;
+      overflow-y: auto;
+    }
+
+    .letter p {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.3rem;
+      color: #2c382b;
+      line-height: 1.4;
+    }
+
+    /* Polaroid Photo Gallery */
+    .gallery-title {
+      text-align: center;
+      margin: 40px 0 20px;
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.5rem;
+      color: #2e472d;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .polaroid {
+      background: white;
+      padding: 15px 15px 25px 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      border-radius: 4px;
+      transform: rotate(calc(var(--r, 0) * 1deg));
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .polaroid:hover {
+      transform: scale(1.05) rotate(0deg) !important;
+      z-index: 10;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    }
+
+    .polaroid-img-container {
+      width: 100%;
+      height: 200px;
+      overflow: hidden;
+      border-radius: 2px;
+      background: #eaf0e7;
+    }
+
+    .polaroid img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .reason-box {
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: #2e472d;
+      font-style: italic;
+      margin: 20px 0;
+      padding: 15px;
+      border-radius: 10px;
+      background: rgba(127, 161, 126, 0.15);
+      transition: all 0.3s ease;
+    }
+
+    .coupon-container {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+
+    /* Cake & Candle */
+    .cake {
+      width: 200px;
+      height: 120px;
+      background: #a3be8c;
+      margin: 60px auto 20px;
+      position: relative;
+      border-radius: 10px 10px 0 0;
+      box-shadow: inset 0 10px 0 #8fae76, inset 0 20px 0 #a3be8c, inset 0 30px 0 #8fae76;
+    }
+
+    .cake:before {
+      content: '';
+      position: absolute;
+      top: -20px;
+      left: 0;
+      width: 100%;
+      height: 20px;
+      background: #f4f6f0;
+      border-radius: 10px 10px 0 0;
+    }
+
+    .candles {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center; /* Center the whole group */
+  gap: 30px; /* Explicit gap between the candles */
+  padding: 0 10px; /* Reduced side padding to allow for gap to take effect */
+}
+    .candle {
+      width: 12px;
+      height: 35px;
+      background: repeating-linear-gradient(45deg, #d8e2dc, #d8e2dc 5px, #88a070 5px, #88a070 10px);
+      border-radius: 3px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .flame {
+      width: 12px;
+      height: 18px;
+      background: #fffa65;
+      border-radius: 50% 50% 20% 20%;
+      position: absolute;
+      top: -18px;
+      box-shadow: 0 0 10px #fffa65, 0 0 20px #ffb142;
+      animation: flicker 0.6s infinite alternate;
+    }
+
+    .flame.blown {
+      display: none;
+    }
+
+    @keyframes flicker {
+      0% { transform: scale(1); opacity: 0.9; }
+      100% { transform: scale(1.15) rotate(2deg); opacity: 1; }
+    }
+
+    /* Photo Lightbox Modal */
+    #photoModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    #photoModal img {
+      max-width: 90%;
+      max-height: 85%;
+      border-radius: 10px;
+      box-shadow: 0 0 25px rgba(255,255,255,0.2);
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 2.8rem; }
+      .envelope { width: 240px; height: 160px; }
+      .flap { border-left-width: 120px; border-right-width: 120px; border-top-width: 90px; }
+      .letter { width: 210px; }
+      .envelope.open .letter { transform: translateY(-100px) scale(1.05); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Dim overlay element -->
+  <div id="dimOverlay"></div>
+
+  <canvas id="particle-canvas"></canvas>
+
+  <div class="container">
+    <header>
+      <h1>Happy Birthday, My Love! 💕</h1>
+    </header>
+
+    <!-- Music & Celebration Controls -->
+    <div class="music-bar">
+      <button class="btn" id="musicBtn">🎵 Click to play our song</button>
+      <audio id="ourSong" src="timewilltell.mp3"></audio>
+    </div>
+
+    <!-- Live Time Together Counter -->
+    <div class="glass-card">
+      <h3 style="font-family: 'Dancing Script', cursive; font-size: 2.2rem; color: #2e472d;">Time We've Spent Together 💕</h3>
+      <div id="counter" style="font-size: 1.25rem; font-weight: 600; color: #4a6b49; margin-top: 10px;">Calculating moments...</div>
+    </div>
+
+    <!-- Interactive Envelope -->
+    <div class="glass-card envelope-wrapper">
+      <p style="margin-bottom: 15px; color: #556353;">Tap the envelope to open your letter 👇</p>
+      <div class="envelope" id="envelope">
+        <div class="flap"></div>
+        <div class="letter">
+          <p>Happy Birthday bata. Sorry if i don't have much to offer karon, but i promise i will spoil you with everything i have soon, thank you sa pag agwanta nako b, thank you for supporting sa tanan nakong ganahan, i love you so much!.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Polaroid Gallery -->
+    <h2 class="gallery-title">Our Favorite Moments ✨</h2>
+    <div class="gallery" id="gallery">
+      <div class="polaroid" style="--r: -3">
+        <div class="polaroid-img-container">
+          <img src="pic1.jpg" alt="Memory 1" onerror="this.src='https://placehold.co/400x400/eaf0e7/2c382b?text=Memory+1'">
+        </div>
+      </div>
+      <div class="polaroid" style="--r: 2">
+        <div class="polaroid-img-container">
+          <img src="pic2.jpg" alt="Memory 2" onerror="this.src='https://placehold.co/400x400/eaf0e7/2c382b?text=Memory+2'">
+        </div>
+      </div>
+      <div class="polaroid" style="--r: -2">
+        <div class="polaroid-img-container">
+          <img src="pic3.jpg" alt="Memory 3" onerror="this.src='https://placehold.co/400x400/eaf0e7/2c382b?text=Memory+3'">
+        </div>
+      </div>
+      <div class="polaroid" style="--r: 3">
+        <div class="polaroid-img-container">
+          <img src="pic4.jpg" alt="Memory 4" onerror="this.src='https://placehold.co/400x400/eaf0e7/2c382b?text=Memory+4'">
+        </div>
+      </div>
+      <div class="polaroid" style="--r: -1">
+        <div class="polaroid-img-container">
+          <img src="pic5.jpg" alt="Memory 5" onerror="this.src='https://placehold.co/400x400/eaf0e7/2c382b?text=Memory+5'">
+        </div>
+      </div>
+      <div class="polaroid" style="--r: 2">
+        <div class="polaroid-img-container">
+          <img src="pic6.jpg" alt="Memory 6" onerror="this.src='https://placehold.co/400x400/eaf0e7/2c382b?text=Memory+6'">
+        </div>
+      </div>
+    </div>
+
+    <!-- Love Jar Section -->
+    <div class="glass-card">
+      <h2 style="font-family: 'Dancing Script', cursive; font-size: 2.2rem; color: #2e472d;">The "Why I Love You" Jar 🏺</h2>
+      <p style="color: #556353; font-size: 0.95rem;">Tap below to pick a reason from the jar!</p>
+      <div class="reason-box" id="reasonBox">"Click the button below to draw a reason..."</div>
+      <button class="btn" id="reasonBtn">✨ Pick a Note</button>
+    </div>
+
+    <!-- Birthday Love Coupons Section -->
+    <div class="glass-card">
+      <h2 style="font-family: 'Dancing Script', cursive; font-size: 2.2rem; color: #2e472d;">Birthday Love Coupons 🎟️️</h2>
+      <p style="color: #556353; font-size: 0.95rem;">Tap any coupon to redeem your gift!</p>
+      <div class="coupon-container">
+        <button class="btn" onclick="redeemCoupon(this, '💆 Full Relaxing Massage')">💆 1x Full Massage</button>
+        <button class="btn" onclick="redeemCoupon(this, '🍜 Cook your favorite food')">🍜 Cook your favorite food</button>
+        <button class="btn" onclick="redeemCoupon(this, '🤤 You know na')">🤤 Unlimited you know na WAHAAHAHAHA</button>
+      </div>
+    </div>
+
+    <!-- Birthday Cake -->
+    <div class="glass-card">
+      <h2 style="font-family: 'Dancing Script', cursive; font-size: 2.2rem; color: #2e472d;">Make a Wish! 🎂</h2>
+      <p style="color: #556353; font-size: 0.95rem;">Tap on each candle flame to blow it out!</p>
+      <div class="cake">
+        <div class="candles">
+          <div class="candle"><div class="flame"></div></div>
+          <div class="candle"><div class="flame"></div></div>
+          <div class="candle"><div class="flame"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <footer style="text-align: center; color: #556353; font-size: 0.9rem; margin-top: 30px;"></footer>
+  </div>
+
+  <!-- Lightbox Modal -->
+  <div id="photoModal" onclick="this.style.display='none'">
+    <img id="modalImg" src="" alt="Enlarged view">
+  </div>
+
+  <script>
+    // --- Floating Heart Trail ---
+    document.addEventListener('mousemove', function(e) {
+      if (Math.random() < 0.15) {
+        createHeart(e.clientX, e.clientY);
+      }
+    });
+
+    document.addEventListener('touchmove', function(e) {
+      if (Math.random() < 0.2) {
+        const touch = e.touches[0];
+        createHeart(touch.clientX, touch.clientY);
+      }
+    });
+
+    function createHeart(x, y) {
+      const heart = document.createElement('div');
+      heart.className = 'heart-trail';
+      heart.innerHTML = '💖';
+      heart.style.left = `${x - 10}px`;
+      heart.style.top = `${y - 10}px`;
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 1500);
+    }
+
+    // --- Background Particle Canvas ---
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = canvas.height + 20;
+        this.size = Math.random() * 15 + 8;
+        this.speedY = Math.random() * 1.5 + 0.5;
+        this.speedX = Math.sin(this.y) * 0.5;
+        this.opacity = Math.random() * 0.5 + 0.3;
+      }
+      update() {
+        this.y -= this.speedY;
+        this.x += Math.sin(this.y * 0.05) * 0.5;
+        if (this.y < -20) this.reset();
+      }
+      draw() {
+        ctx.fillStyle = `rgba(163, 190, 140, ${this.opacity})`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size / 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < 25; i++) {
+      particles.push(new Particle());
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    // --- Live Time Together Counter (December 1, 2019) ---
+    const startDate = new Date('2019-12-01T00:00:00');
+
+    function updateCounter() {
+      const now = new Date();
+      const diff = now - startDate;
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / 1000 / 60) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      const counterEl = document.getElementById('counter');
+      if (counterEl) {
+        counterEl.innerText = `${days} Days, ${hours} Hours, ${minutes} Mins, ${seconds} Secs`;
+      }
+    }
+    setInterval(updateCounter, 1000);
+    updateCounter();
+
+    // --- Envelope Toggle ---
+    const envelope = document.getElementById('envelope');
+    envelope.addEventListener('click', () => {
+      envelope.classList.toggle('open');
+      if (envelope.classList.contains('open')) {
+        confetti({ particleCount: 40, spread: 60, origin: { y: 0.6 } });
+      }
+    });
+
+    // --- Photo Lightbox Click Handler ---
+    function attachLightboxHandler(img) {
+      img.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const modal = document.getElementById('photoModal');
+        document.getElementById('modalImg').src = img.src;
+        modal.style.display = 'flex';
+      });
+    }
+
+    document.querySelectorAll('.polaroid img').forEach(attachLightboxHandler);
+
+    // --- Love Coupons Handler ---
+    function redeemCoupon(btn, title) {
+      btn.style.background = 'var(--primary)';
+      btn.style.color = 'white';
+      btn.innerText = `✅ REDEEMED: ${title}`;
+      btn.disabled = true;
+      confetti({ particleCount: 50, spread: 50, origin: { y: 0.7 } });
+    }
+
+    // --- Love Jar Array ---
+    const reasons = [
+      "Your smile instantly brightens up my worst days.",
+      "How you have endless patience for me, but zero patience for literally anyone else in the world.",
+      "How caring and thoughtful you are with everyone around you.",
+      "The way you wholeheartedly support every single one of my dreams, no matter how big or small.",
+      "The warmth and comfort I feel whenever I'm with you.",
+      "How passionate you get when talking about things you love.",
+    ];
+
+    const reasonBox = document.getElementById('reasonBox');
+    const reasonBtn = document.getElementById('reasonBtn');
+
+    reasonBtn.addEventListener('click', () => {
+      const randomReason = reasons[Math.floor(Math.random() * reasons.length)];
+      reasonBox.style.opacity = '0';
+      setTimeout(() => {
+        reasonBox.innerText = `"${randomReason}"`;
+        reasonBox.style.opacity = '1';
+      }, 200);
+      confetti({ particleCount: 20, spread: 40, origin: { y: 0.7 } });
+    });
+
+    // --- Cake Candle Blowing with Dim & Custom Cat GIF Popup ---
+    const flames = document.querySelectorAll('.flame');
+    let blownCount = 0;
+
+    flames.forEach(flame => {
+      flame.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!flame.classList.contains('blown')) {
+          flame.classList.add('blown');
+          blownCount++;
+          if (blownCount === flames.length) {
+            setTimeout(() => {
+              // Dim the page
+              const dimOverlay = document.getElementById('dimOverlay');
+              dimOverlay.classList.add('active');
+
+              // Fire celebration confetti
+              confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 } });
+
+              // Create modal message with your custom cat.gif
+              const msg = document.createElement('div');
+              msg.id = 'wishModal';
+              msg.style.cssText = 'position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:25px; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,0.5); text-align:center; z-index:10001; color:#2c382b; font-weight:600; font-size:1.1rem; border:2px solid #7fa17e; max-width:90%; width:320px;';
+              
+              msg.innerHTML = `
+                <img src="cat.gif" alt="Romantic Cat" onerror="this.src='https://placehold.co/400x300/eaf0e7/2c382b?text=cat.gif'" style="width:100%; max-height:200px; object-fit:cover; border-radius:12px; margin-bottom:15px;">
+                🎉 Wish blown! Naa pakay last iblow unya🤤🤣<br><br>
+                <button class="btn" id="closeWishBtn" style="padding:8px 20px; width:100%; justify-content:center;">Yay! 💕</button>
+              `;
+
+              document.body.appendChild(msg);
+
+              // Restore back to normal on clicking "Yay! 💕"
+              document.getElementById('closeWishBtn').addEventListener('click', () => {
+                msg.remove();
+                dimOverlay.classList.remove('active');
+              });
+
+            }, 300);
+          }
+        }
+      });
+    });
+
+    // --- MP3 Audio Controls ---
+const audio = document.getElementById('ourSong');
+const musicBtn = document.getElementById('musicBtn');
+
+musicBtn.addEventListener('click', function() {
+  if (audio.paused) {
+    audio.play();
+    this.innerText = '⏸️ Pause Song';
+  } else {
+    audio.pause();
+    this.innerText = '🎵 Click to play Time Will Tell';
+  }
+});
+
+audio.addEventListener('ended', function() {
+  musicBtn.innerText = '🎵 Click to play Time Will Tell';
+});
+  </script>
+</body>
+</html>
