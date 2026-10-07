@@ -271,6 +271,24 @@
         .scratch-canvas {
             cursor: pointer;
             touch-action: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+
+        /* Spinning Vinyl Animation */
+        @keyframes spinVinyl {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spinVinyl 12s linear infinite;
+        }
+        .animation-paused {
+            animation-play-state: paused !important;
         }
     </style>
 </head>
@@ -286,7 +304,6 @@
     <div class="fixed top-5 right-5 z-40 flex items-center gap-3">
         <audio id="bgMusic" loop>
             <source src="marriedlife.mp3" type="audio/mpeg">
-            <!-- Fallback sound source -->
             <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-piano-112188.mp3" type="audio/mpeg">
         </audio>
         <button id="audioToggleBtn" onclick="toggleAudio()" class="glass-card p-3 rounded-full hover:border-matcha-accent transition-all duration-300 group flex items-center justify-center">
@@ -299,7 +316,6 @@
     <!-- 1. PIN Lock Screen Overlay -->
     <div id="pinOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0f1410] px-4 transition-opacity duration-700">
         <div class="glass-card max-w-sm w-full p-8 rounded-3xl text-center shadow-2xl relative overflow-hidden border border-matcha-cardBorder mx-auto">
-            <!-- Subtle Gold Glow -->
             <div class="absolute -top-12 -left-12 w-32 h-32 bg-matcha-accent/10 rounded-full blur-2xl"></div>
             
             <div class="mb-6">
@@ -342,7 +358,6 @@
                 </button>
             </div>
 
-            <!-- Error Feedback -->
             <p id="pinError" class="text-xs text-red-400 h-4 opacity-0 transition-opacity font-medium">Incorrect passcode. Try again.</p>
         </div>
     </div>
@@ -362,6 +377,82 @@
                 A quiet space built with all my love, dedicated to every step of our beautiful journey together.
             </p>
         </header>
+
+        <!-- Custom Mini Spotify Music Player -->
+        <section class="glass-card max-w-3xl mx-auto p-6 sm:p-8 rounded-3xl border border-matcha-cardBorder space-y-6 shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-20 -right-20 w-48 h-48 bg-matcha-accent/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="flex items-center justify-between border-b border-matcha-cardBorder pb-4">
+                <div class="flex items-center gap-3">
+                    <svg class="w-7 h-7 text-[#1DB954]" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.899 4.62-1.02 8.52-.6 11.64 1.32.36.18.48.66.301 1.019zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141 C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.18-1.2-.18-1.38-.72-.18-.6.18-1.2.72-1.38 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+                    </svg>
+                    <div>
+                        <span class="text-xs uppercase font-bold tracking-widest text-matcha-accent block">Spotify Playlist Integration</span>
+                        <h2 class="font-serif text-xl sm:text-2xl font-bold text-matcha-cream">Songs That Remind Me Of You 🎵</h2>
+                    </div>
+                </div>
+                <span id="playerTrackCounter" class="text-xs font-mono text-matcha-soft/70 bg-matcha-base/50 px-3 py-1 rounded-full border border-matcha-cardBorder">1 / 6</span>
+            </div>
+
+            <audio id="spotifyAudioPlayer" preload="auto"></audio>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                <div class="md:col-span-5 flex justify-center">
+                    <div class="relative w-48 h-48 sm:w-56 sm:h-56 rounded-full p-2 bg-gradient-to-tr from-[#121813] via-[#2a382c] to-[#121813] shadow-2xl flex items-center justify-center">
+                        <div id="vinylRecord" class="absolute inset-0 rounded-full border-4 border-black/40 bg-[#111111] animate-spin-slow animation-paused shadow-inner flex items-center justify-center overflow-hidden">
+                            <div class="absolute inset-2 rounded-full border border-white/5"></div>
+                            <div class="absolute inset-6 rounded-full border border-white/5"></div>
+                            <div class="absolute inset-10 rounded-full border border-white/5"></div>
+                            <div class="absolute inset-14 rounded-full border border-white/5"></div>
+                            <img id="playerAlbumArt" src="" class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-2 border-matcha-accent shadow-md" alt="Album Art">
+                            <div class="absolute w-4 h-4 bg-[#0f1410] border-2 border-matcha-accent rounded-full z-10 shadow"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:col-span-7 space-y-5 text-center md:text-left">
+                    <div>
+                        <h3 id="playerSongTitle" class="font-serif text-2xl font-bold text-matcha-cream line-clamp-1">Song Title</h3>
+                        <p id="playerArtist" class="text-sm text-matcha-accent font-medium mt-1">Artist Name</p>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <input type="range" id="playerSeek" value="0" min="0" max="100" class="w-full h-1.5 bg-matcha-cardBorder rounded-lg appearance-none cursor-pointer accent-matcha-accent">
+                        <div class="flex justify-between text-xs font-mono text-matcha-soft/60">
+                            <span id="playerCurrentTime">0:00</span>
+                            <span id="playerDuration">0:00</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-center md:justify-start gap-4">
+                        <button onclick="prevTrack()" class="p-2 text-matcha-soft hover:text-matcha-cream transition-colors">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+                        </button>
+
+                        <button onclick="togglePlayPause()" id="playPauseBtn" class="w-12 h-12 rounded-full bg-matcha-accent hover:bg-matcha-highlight text-matcha-base flex items-center justify-center transition-all duration-300 shadow-lg hover:scale-105">
+                            <svg id="playIcon" class="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            <svg id="pauseIcon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                        </button>
+
+                        <button onclick="nextTrack()" class="p-2 text-matcha-soft hover:text-matcha-cream transition-colors">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+                        </button>
+
+                        <div class="flex items-center gap-2 ml-auto">
+                            <svg class="w-4 h-4 text-matcha-soft" fill="currentColor" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+                            <input type="range" id="playerVolume" min="0" max="1" step="0.05" value="0.8" class="w-16 sm:w-20 h-1 bg-matcha-cardBorder rounded-lg appearance-none cursor-pointer accent-matcha-accent">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-matcha-cardBorder/60">
+                <p class="text-xs text-matcha-soft/60 uppercase tracking-wider mb-2 font-semibold">Select Track from Dedicated Playlist</p>
+                <div id="playlistContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
+                </div>
+            </div>
+        </section>
 
         <!-- 3. Live Relationship Counter -->
         <section class="space-y-6 max-w-4xl mx-auto">
@@ -404,7 +495,7 @@
                         <div>
                             <p class="font-serif text-lg font-bold text-matcha-base mb-2">My Dearest,</p>
                             <p class="text-xs sm:text-sm text-matcha-base/80 leading-relaxed font-sans">
-                               Happy Birthday Bata! I don't really have much to offer this time but I made this just for you❤️. Thank you again sa tanan, be happy sa imong birthday karon, I hope ganahan raka ani!❤️
+                               Happy Birthday Bata! I don't really have much to offer this time but I made this just for you❤️. Thank you again sa tanan, be happy sa imong birthday karon, i love you so much I hope ganahan raka ani!❤️
                             </p>
                         </div>
                         <div class="text-right pt-4 border-t border-matcha-base/10 mt-2">
@@ -443,27 +534,27 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Coupon 1 -->
                 <div class="glass-card p-6 rounded-2xl relative overflow-hidden flex flex-col items-center text-center space-y-3">
-                    <div class="text-3xl">💆‍♀️️</div>
+                    <div class="text-3xl">💆‍♀️</div>
                     <h3 class="font-serif text-xl font-bold text-matcha-cream">Full Body Massage</h3>
                     <p class="text-xs text-matcha-soft">Redeemable anytime for a relaxing 45-minute massage session with happy ending🤣</p>
-                    <div class="relative w-full h-28 rounded-xl overflow-hidden mt-2 border border-matcha-cardBorder">
+                    <div class="relative w-full h-28 rounded-xl overflow-hidden mt-2 border border-matcha-cardBorder bg-matcha-card">
                         <div class="absolute inset-0 bg-matcha-accent/10 flex items-center justify-center font-bold text-matcha-highlight text-sm">
                             CODE: MASSAGE-LOVE
                         </div>
-                        <canvas class="scratch-canvas absolute inset-0 w-full h-full" id="scratch1"></canvas>
+                        <canvas class="scratch-canvas" id="scratch1"></canvas>
                     </div>
                 </div>
 
                 <!-- Coupon 2 -->
                 <div class="glass-card p-6 rounded-2xl relative overflow-hidden flex flex-col items-center text-center space-y-3">
                     <div class="text-3xl">🍵</div>
-                    <h3 class="font-serif text-xl font-bold text-matcha-cream">Cook your Favorite Meal </h3>
-        
-                    <div class="relative w-full h-28 rounded-xl overflow-hidden mt-2 border border-matcha-cardBorder">
+                    <h3 class="font-serif text-xl font-bold text-matcha-cream">Cook your Favorite Meal</h3>
+                    <p class="text-xs text-matcha-soft">A delicious home-cooked meal of your choice made with love whenever you want!</p>
+                    <div class="relative w-full h-28 rounded-xl overflow-hidden mt-2 border border-matcha-cardBorder bg-matcha-card">
                         <div class="absolute inset-0 bg-matcha-accent/10 flex items-center justify-center font-bold text-matcha-highlight text-sm">
                             CODE: FAV-MEAL
                         </div>
-                        <canvas class="scratch-canvas absolute inset-0 w-full h-full" id="scratch2"></canvas>
+                        <canvas class="scratch-canvas" id="scratch2"></canvas>
                     </div>
                 </div>
 
@@ -471,12 +562,12 @@
                 <div class="glass-card p-6 rounded-2xl relative overflow-hidden flex flex-col items-center text-center space-y-3">
                     <div class="text-3xl">👑</div>
                     <h3 class="font-serif text-xl font-bold text-matcha-cream">Unlimited Spoiling Day</h3>
-                    <p class="text-xs text-matcha-soft">A full day where I say YES to whatever activity or plan you choose!🤤</p>
-                    <div class="relative w-full h-28 rounded-xl overflow-hidden mt-2 border border-matcha-cardBorder">
+                    <p class="text-xs text-matcha-soft">A full day where I say YES to whatever activity or plan you choose! 🤪</p>
+                    <div class="relative w-full h-28 rounded-xl overflow-hidden mt-2 border border-matcha-cardBorder bg-matcha-card">
                         <div class="absolute inset-0 bg-matcha-accent/10 flex items-center justify-center font-bold text-matcha-highlight text-sm">
                             CODE: QUEEN-FOR-A-DAY
                         </div>
-                        <canvas class="scratch-canvas absolute inset-0 w-full h-full" id="scratch3"></canvas>
+                        <canvas class="scratch-canvas" id="scratch3"></canvas>
                     </div>
                 </div>
             </div>
@@ -490,23 +581,18 @@
                 <p class="text-xs text-matcha-soft/70">Click or tap each candle flame to blow it out</p>
             </div>
 
-            <!-- SVG Cake Styling -->
             <div class="relative w-64 h-56 mx-auto flex flex-col items-center justify-end">
-                <!-- Candle Flames Bar -->
                 <div class="flex justify-center gap-8 mb-2 z-20">
-                    <!-- Candle 1 -->
                     <div class="flex flex-col items-center">
                         <div id="flame1" onclick="blowCandle(1)" class="flame"></div>
                         <div id="smoke1" class="smoke hidden"></div>
                         <div class="w-2 h-10 bg-gradient-to-b from-matcha-soft to-matcha-accent rounded-t"></div>
                     </div>
-                    <!-- Candle 2 -->
                     <div class="flex flex-col items-center">
                         <div id="flame2" onclick="blowCandle(2)" class="flame"></div>
                         <div id="smoke2" class="smoke hidden"></div>
                         <div class="w-2 h-10 bg-gradient-to-b from-matcha-soft to-matcha-accent rounded-t"></div>
                     </div>
-                    <!-- Candle 3 -->
                     <div class="flex flex-col items-center">
                         <div id="flame3" onclick="blowCandle(3)" class="flame"></div>
                         <div id="smoke3" class="smoke hidden"></div>
@@ -514,7 +600,6 @@
                     </div>
                 </div>
 
-                <!-- Matcha Layered Cake Base -->
                 <div class="w-48 h-12 bg-matcha-card border-t-4 border-matcha-accent/40 rounded-t-xl relative overflow-hidden shadow-inner flex items-center justify-center">
                     <div class="w-full h-1 bg-matcha-accent/30 absolute top-2"></div>
                 </div>
@@ -533,42 +618,36 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 pt-4">
-                <!-- Polaroid 1 -->
                 <div onclick="openLightbox('pic1.jpg')" class="bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform -rotate-2 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
                     <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
                         <img src="pic1.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+1'" class="w-full h-full object-cover" alt="Moment 1">
                     </div>
                 </div>
 
-                <!-- Polaroid 2 -->
                 <div onclick="openLightbox('pic2.jpg')" class="bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform rotate-3 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
                     <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
                         <img src="pic2.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+2'" class="w-full h-full object-cover" alt="Moment 2">
                     </div>
                 </div>
 
-                <!-- Polaroid 3 -->
                 <div onclick="openLightbox('pic3.jpg')" class="bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform -rotate-1 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
                     <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
                         <img src="pic3.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+3'" class="w-full h-full object-cover" alt="Moment 3">
                     </div>
                 </div>
 
-                <!-- Polaroid 4 -->
                 <div onclick="openLightbox('pic4.jpg')" class="bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform rotate-2 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
                     <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
                         <img src="pic4.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+4'" class="w-full h-full object-cover" alt="Moment 4">
                     </div>
                 </div>
 
-                <!-- Polaroid 5 -->
                 <div onclick="openLightbox('pic5.jpg')" class="bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform -rotate-3 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
                     <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
                         <img src="pic5.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+5'" class="w-full h-full object-cover" alt="Moment 5">
                     </div>
                 </div>
 
-                <!-- Polaroid 6 -->
                 <div onclick="openLightbox('pic6.jpg')" class="bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform rotate-1 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
                     <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
                         <img src="pic6.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+6'" class="w-full h-full object-cover" alt="Moment 6">
@@ -615,10 +694,10 @@
                 const lantern = document.createElement('div');
                 lantern.className = 'lantern';
                 
-                const duration = 12 + Math.random() * 12; // 12s - 24s
-                const delay = Math.random() * 15; // 0s - 15s
-                const left = Math.random() * 95; // 0% - 95%
-                const scale = 0.5 + Math.random() * 0.75; // 0.5x - 1.25x
+                const duration = 12 + Math.random() * 12;
+                const delay = Math.random() * 15;
+                const left = Math.random() * 95;
+                const scale = 0.5 + Math.random() * 0.75;
 
                 lantern.style.setProperty('--duration', `${duration}s`);
                 lantern.style.setProperty('--delay', `${delay}s`);
@@ -675,9 +754,12 @@
                 setTimeout(() => {
                     overlay.style.display = 'none';
                     document.getElementById('mainApp').classList.remove('hidden');
-                    // Try playing music automatically upon unlock
+                    
+                    // Initialize scratch cards right after revealing main application
+                    initAllScratchCards();
+
                     const music = document.getElementById('bgMusic');
-                    music.play().catch(() => { /* Auto-play restricted */ });
+                    music.play().catch(() => {});
                 }, 700);
             } else {
                 errorMsg.style.opacity = '1';
@@ -698,6 +780,176 @@
                 music.pause();
             }
         }
+
+        /* 2.1 SPOTIFY CUSTOM MINI PLAYER LOGIC */
+        const spotifyTracks = [
+            {
+                title: "How Would You Feel",
+                artist: "Ed Sheeran",
+                cover: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80",
+                src: "howwouldyoufeel.mp3"
+            },
+            {
+                title: "Something About Her",
+                artist: "Stephen Sanchez",
+                cover: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&w=400&q=80",
+                src: "somethingabouther.mp3"
+            },
+            {
+                title: "All I Know",
+                artist: "Tors",
+                cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=400&q=80",
+                src: "alliknow.mp3"
+            },
+            {
+                title: "Hearts Don't Break Around Here",
+                artist: "Ed Sheeran",
+                cover: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=400&q=80",
+                src: "heartsdontbreakaroundhere.mp3"
+            },
+            {
+                title: "Time Will Tell",
+                artist: "Gregory Alan Isakov",
+                cover: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=400&q=80",
+                src: "timewilltell.mp3"
+            },
+            {
+                title: "I Want You",
+                artist: "Stephen Sanchez",
+                cover: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=400&q=80",
+                src: "iwantyou.mp3"
+            }
+        ];
+
+        let currentTrackIndex = 0;
+        const spotifyAudio = document.getElementById('spotifyAudioPlayer');
+
+        function loadTrack(index) {
+            currentTrackIndex = index;
+            const track = spotifyTracks[index];
+            document.getElementById('playerSongTitle').innerText = track.title;
+            document.getElementById('playerArtist').innerText = track.artist;
+            document.getElementById('playerAlbumArt').src = track.cover;
+            document.getElementById('playerTrackCounter').innerText = `${index + 1} / ${spotifyTracks.length}`;
+            spotifyAudio.src = track.src;
+            renderPlaylist();
+        }
+
+        function renderPlaylist() {
+            const container = document.getElementById('playlistContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            spotifyTracks.forEach((track, idx) => {
+                const isActive = idx === currentTrackIndex;
+                const btn = document.createElement('button');
+                btn.onclick = () => {
+                    loadTrack(idx);
+                    playTrack();
+                };
+                btn.className = `flex items-center gap-3 p-2 rounded-xl text-left transition-all ${
+                    isActive 
+                    ? 'bg-matcha-accent/20 border border-matcha-accent text-matcha-cream font-medium' 
+                    : 'bg-matcha-card/50 hover:bg-matcha-card border border-transparent text-matcha-soft/80'
+                }`;
+                btn.innerHTML = `
+                    <img src="${track.cover}" class="w-9 h-9 rounded-lg object-cover" alt="cover">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-semibold truncate ${isActive ? 'text-matcha-highlight' : 'text-matcha-cream'}">${track.title}</p>
+                        <p class="text-[10px] text-matcha-soft/60 truncate">${track.artist}</p>
+                    </div>
+                    ${isActive ? '<span class="text-[10px] text-matcha-accent font-bold px-2">PLAYING</span>' : ''}
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function togglePlayPause() {
+            if (spotifyAudio.paused) {
+                playTrack();
+            } else {
+                pauseTrack();
+            }
+        }
+
+        function playTrack() {
+            spotifyAudio.play().then(() => {
+                document.getElementById('playIcon').classList.add('hidden');
+                document.getElementById('pauseIcon').classList.remove('hidden');
+                document.getElementById('vinylRecord').classList.remove('animation-paused');
+            }).catch(() => {});
+        }
+
+        function pauseTrack() {
+            spotifyAudio.pause();
+            document.getElementById('playIcon').classList.remove('hidden');
+            document.getElementById('pauseIcon').classList.add('hidden');
+            document.getElementById('vinylRecord').classList.add('animation-paused');
+        }
+
+        function nextTrack() {
+            currentTrackIndex = (currentTrackIndex + 1) % spotifyTracks.length;
+            loadTrack(currentTrackIndex);
+            playTrack();
+        }
+
+        function prevTrack() {
+            currentTrackIndex = (currentTrackIndex - 1 + spotifyTracks.length) % spotifyTracks.length;
+            loadTrack(currentTrackIndex);
+            playTrack();
+        }
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        window.addEventListener('load', () => {
+            loadTrack(0);
+
+            // Sync background Married Life audio with playlist playback state
+            spotifyAudio.addEventListener('play', () => {
+                const bgMusic = document.getElementById('bgMusic');
+                if (bgMusic && !bgMusic.paused) {
+                    bgMusic.pause();
+                }
+            });
+
+            spotifyAudio.addEventListener('pause', () => {
+                const bgMusic = document.getElementById('bgMusic');
+                if (bgMusic && bgMusic.paused) {
+                    bgMusic.play().catch(() => {});
+                }
+            });
+
+            spotifyAudio.addEventListener('timeupdate', () => {
+                const currentTime = spotifyAudio.currentTime;
+                const duration = spotifyAudio.duration || 0;
+                document.getElementById('playerCurrentTime').innerText = formatTime(currentTime);
+                document.getElementById('playerDuration').innerText = formatTime(duration);
+                if (duration > 0) {
+                    document.getElementById('playerSeek').value = (currentTime / duration) * 100;
+                }
+            });
+
+            spotifyAudio.addEventListener('ended', () => {
+                pauseTrack();
+                const bgMusic = document.getElementById('bgMusic');
+                if (bgMusic && bgMusic.paused) {
+                    bgMusic.play().catch(() => {});
+                }
+            });
+
+            document.getElementById('playerSeek').addEventListener('input', (e) => {
+                const seekTo = (e.target.value / 100) * spotifyAudio.duration;
+                spotifyAudio.currentTime = seekTo;
+            });
+
+            document.getElementById('playerVolume').addEventListener('input', (e) => {
+                spotifyAudio.volume = e.target.value;
+            });
+        });
 
         /* 3. RELATIONSHIP COUNTER LOGIC */
         const startDate = new Date('2019-12-01T00:00:00');
@@ -725,74 +977,138 @@
             envelope.classList.toggle('open');
         }
 
-       /* 5. REASONS SLOT MACHINE LOGIC */
-const reasons = [
-  "The adorable way you mispronounce words.",
-  "How you always make time for us, even on your busiest days.",
-  "The way you spoil me with so much love and care.",
-  "Your endless support for every single one of my dreams.",
-  "How peaceful and beautiful your face looks right before you wake up.",
-  "Your warm smile brightens up my worst days.",
-  "How calm and peaceful I feel when I'm next to you.",
-  "Your adorable laugh when you find something truly hilarious.",
-  "How your hand feels perfectly made to hold mine."
-];
+        /* 5. REASONS SLOT MACHINE LOGIC */
+        const reasons = [
+           "The adorable way you pronounce feather as feeder🤣.",
+            "How you always compliment my voice and make me feel special.",
+          "How you always make time for us, even on your busiest days.",
+         "How you start tickling me, but get mad the second I tickle you back.",
+          "Your endless support for every single one of my dreams.",
+          "How peaceful and beautiful your face looks right before you wake up.",
+          "How you always share your day and work stories with me.",
+          "The way you always smell so good to me, in a way that's uniquely yours.",
+        ];
+
+        let currentReasonIndex = 0;
 
         function spinSlotMachine() {
             const reel = document.getElementById('slotReel');
-            const randomReason = reasons[Math.floor(Math.random() * reasons.length)];
+            const nextReason = reasons[currentReasonIndex];
+            
+            currentReasonIndex = (currentReasonIndex + 1) % reasons.length;
+
             reel.style.transform = 'translateY(-20px)';
             reel.style.opacity = '0';
             setTimeout(() => {
-                reel.innerText = randomReason;
+                reel.innerText = nextReason;
                 reel.style.transform = 'translateY(0)';
                 reel.style.opacity = '1';
             }, 300);
         }
 
-        /* 6. SCRATCH CARD CANVAS LOGIC */
-        function initScratchCard(id) {
-            const canvas = document.getElementById(id);
+        /* 6. SCRATCH CARD CANVAS LOGIC (FIXED CANVAS FOIL) */
+        function setupScratchCard(canvas) {
             if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            
+            function resizeAndDraw() {
+                const rect = canvas.parentElement.getBoundingClientRect();
+                const width = rect.width || 300;
+                const height = rect.height || 112;
 
-            ctx.fillStyle = '#2a382c';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                // Set physical resolution equal to display size
+                canvas.width = width;
+                canvas.height = height;
 
-            ctx.fillStyle = '#8fae76';
-            ctx.font = '12px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('Scratch Here ✨', canvas.width / 2, canvas.height / 2 + 4);
+                // Fill with Silver Foil Gradient
+                ctx.globalCompositeOperation = 'source-over';
+                
+                const gradient = ctx.createLinearGradient(0, 0, width, height);
+                gradient.addColorStop(0, '#a8b0b8');
+                gradient.addColorStop(0.2, '#e8ecef');
+                gradient.addColorStop(0.4, '#9da4ac');
+                gradient.addColorStop(0.6, '#f0f3f5');
+                gradient.addColorStop(0.8, '#b8c0c8');
+                gradient.addColorStop(1, '#8d959e');
+
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, width, height);
+
+                // Add Noise/Texture
+                ctx.fillStyle = 'rgba(255,255,255,0.25)';
+                for (let i = 0; i < 500; i++) {
+                    ctx.fillRect(Math.random() * width, Math.random() * height, 2, 2);
+                }
+                ctx.fillStyle = 'rgba(0,0,0,0.15)';
+                for (let i = 0; i < 500; i++) {
+                    ctx.fillRect(Math.random() * width, Math.random() * height, 2, 2);
+                }
+
+                // Scratch Instruction Label
+                ctx.fillStyle = '#374151';
+                ctx.font = 'bold 13px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('SCRATCH HERE ✨', width / 2, height / 2);
+            }
+
+            resizeAndDraw();
 
             let isDrawing = false;
 
+            function getPos(e) {
+                const bounds = canvas.getBoundingClientRect();
+                let clientX = e.clientX;
+                let clientY = e.clientY;
+
+                if (e.touches && e.touches.length > 0) {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                }
+
+                return {
+                    x: clientX - bounds.left,
+                    y: clientY - bounds.top
+                };
+            }
+
             function scratch(e) {
                 if (!isDrawing) return;
-                const rect = canvas.getBoundingClientRect();
-                const x = (e.clientX || e.touches[0].clientX) - rect.left;
-                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                e.preventDefault();
+
+                const pos = getPos(e);
 
                 ctx.globalCompositeOperation = 'destination-out';
                 ctx.beginPath();
-                ctx.arc(x, y, 16, 0, Math.PI * 2);
+                ctx.arc(pos.x, pos.y, 22, 0, Math.PI * 2);
                 ctx.fill();
             }
 
-            canvas.addEventListener('mousedown', () => isDrawing = true);
-            canvas.addEventListener('mouseup', () => isDrawing = false);
-            canvas.addEventListener('mousemove', scratch);
+            // Touch & Mouse Event Handlers
+            canvas.onmousedown = (e) => { isDrawing = true; scratch(e); };
+            canvas.onmousemove = scratch;
+            window.addEventListener('mouseup', () => isDrawing = false);
 
-            canvas.addEventListener('touchstart', () => isDrawing = true);
-            canvas.addEventListener('touchend', () => isDrawing = false);
-            canvas.addEventListener('touchmove', scratch);
+            canvas.ontouchstart = (e) => { isDrawing = true; scratch(e); };
+            canvas.ontouchmove = scratch;
+            window.addEventListener('touchend', () => isDrawing = false);
+
+            // Handle window resizing without losing transparent scratched holes
+            window.addEventListener('resize', () => {
+                if (canvas.width === 0 || canvas.height === 0) {
+                    resizeAndDraw();
+                }
+            });
+        }
+
+        function initAllScratchCards() {
+            setTimeout(() => {
+                document.querySelectorAll('.scratch-canvas').forEach(setupScratchCard);
+            }, 50);
         }
 
         window.addEventListener('load', () => {
-            initScratchCard('scratch1');
-            initScratchCard('scratch2');
-            initScratchCard('scratch3');
+            initAllScratchCards();
         });
 
         /* 7. CANDLE BLOW LOGIC */
