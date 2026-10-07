@@ -290,6 +290,44 @@
         .animation-paused {
             animation-play-state: paused !important;
         }
+
+        /* Cascading Polaroid Gallery Animations */
+        .cascade-container {
+            overflow: hidden;
+            width: 100%;
+            position: relative;
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        }
+
+        .cascade-row {
+            display: flex;
+            width: max-content;
+            gap: 2rem;
+            padding: 1rem 0;
+        }
+
+        .cascade-row-right {
+            animation: cascadeRight 30s linear infinite;
+        }
+
+        .cascade-row-left {
+            animation: cascadeLeft 30s linear infinite;
+        }
+
+        .cascade-container:hover .cascade-row {
+            animation-play-state: paused;
+        }
+
+        @keyframes cascadeRight {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0%); }
+        }
+
+        @keyframes cascadeLeft {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+        }
     </style>
 </head>
 <body class="relative min-h-screen text-slate-100 selection:bg-matcha-accent selection:text-matcha-base">
@@ -611,48 +649,97 @@
         </section>
 
         <!-- 8. Polaroid Photo Gallery with Lightbox -->
-        <section class="space-y-6 max-w-4xl mx-auto">
+        <section class="space-y-6 max-w-6xl mx-auto">
             <div class="text-center space-y-1">
                 <h2 class="font-serif text-2xl sm:text-3xl font-semibold text-matcha-cream">Captured Moments</h2>
                 <p class="text-xs text-matcha-soft/60">Click any polaroid to view enlarged</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 pt-4">
-                <div onclick="openLightbox('pic1.jpg')" class="bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform -rotate-2 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
-                    <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
-                        <img src="pic1.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+1'" class="w-full h-full object-cover" alt="Moment 1">
+            <!-- Cascading Carousel Container -->
+            <div class="cascade-container space-y-6 pt-4">
+                
+                <!-- 1st Row Cascades Right -->
+                <div class="cascade-row cascade-row-right">
+                    <!-- Original Set -->
+                    <div onclick="openLightbox('pic1.jpg')" class="w-64 shrink-0 bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform -rotate-2 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
+                        <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
+                            <img src="pic1.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+1'" class="w-full h-full object-cover" alt="Moment 1">
+                        </div>
+                    </div>
+
+                    <div onclick="openLightbox('pic2.jpg')" class="w-64 shrink-0 bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform rotate-3 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
+                        <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
+                            <img src="pic2.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+2'" class="w-full h-full object-cover" alt="Moment 2">
+                        </div>
+                    </div>
+
+                    <div onclick="openLightbox('pic3.jpg')" class="w-64 shrink-0 bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform -rotate-1 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
+                        <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
+                            <img src="pic3.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+3'" class="w-full h-full object-cover" alt="Moment 3">
+                        </div>
+                    </div>
+
+                    <!-- Duplicate Set for Seamless Loop -->
+                    <div onclick="openLightbox('pic1.jpg')" class="w-64 shrink-0 bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform -rotate-2 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
+                        <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
+                            <img src="pic1.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+1'" class="w-full h-full object-cover" alt="Moment 1">
+                        </div>
+                    </div>
+
+                    <div onclick="openLightbox('pic2.jpg')" class="w-64 shrink-0 bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform rotate-3 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
+                        <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
+                            <img src="pic2.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+2'" class="w-full h-full object-cover" alt="Moment 2">
+                        </div>
+                    </div>
+
+                    <div onclick="openLightbox('pic3.jpg')" class="w-64 shrink-0 bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform -rotate-1 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
+                        <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
+                            <img src="pic3.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+3'" class="w-full h-full object-cover" alt="Moment 3">
+                        </div>
                     </div>
                 </div>
 
-                <div onclick="openLightbox('pic2.jpg')" class="bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform rotate-3 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
-                    <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
-                        <img src="pic2.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+2'" class="w-full h-full object-cover" alt="Moment 2">
+                <!-- 2nd Row Cascades Left -->
+                <div class="cascade-row cascade-row-left">
+                    <!-- Original Set -->
+                    <div onclick="openLightbox('pic4.jpg')" class="w-64 shrink-0 bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform rotate-2 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
+                        <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
+                            <img src="pic4.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+4'" class="w-full h-full object-cover" alt="Moment 4">
+                        </div>
+                    </div>
+
+                    <div onclick="openLightbox('pic5.jpg')" class="w-64 shrink-0 bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform -rotate-3 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
+                        <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
+                            <img src="pic5.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+5'" class="w-full h-full object-cover" alt="Moment 5">
+                        </div>
+                    </div>
+
+                    <div onclick="openLightbox('pic6.jpg')" class="w-64 shrink-0 bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform rotate-1 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
+                        <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
+                            <img src="pic6.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+6'" class="w-full h-full object-cover" alt="Moment 6">
+                        </div>
+                    </div>
+
+                    <!-- Duplicate Set for Seamless Loop -->
+                    <div onclick="openLightbox('pic4.jpg')" class="w-64 shrink-0 bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform rotate-2 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
+                        <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
+                            <img src="pic4.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+4'" class="w-full h-full object-cover" alt="Moment 4">
+                        </div>
+                    </div>
+
+                    <div onclick="openLightbox('pic5.jpg')" class="w-64 shrink-0 bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform -rotate-3 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
+                        <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
+                            <img src="pic5.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+5'" class="w-full h-full object-cover" alt="Moment 5">
+                        </div>
+                    </div>
+
+                    <div onclick="openLightbox('pic6.jpg')" class="w-64 shrink-0 bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform rotate-1 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
+                        <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
+                            <img src="pic6.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+6'" class="w-full h-full object-cover" alt="Moment 6">
+                        </div>
                     </div>
                 </div>
 
-                <div onclick="openLightbox('pic3.jpg')" class="bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform -rotate-1 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
-                    <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
-                        <img src="pic3.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+3'" class="w-full h-full object-cover" alt="Moment 3">
-                    </div>
-                </div>
-
-                <div onclick="openLightbox('pic4.jpg')" class="bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform rotate-2 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
-                    <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
-                        <img src="pic4.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+4'" class="w-full h-full object-cover" alt="Moment 4">
-                    </div>
-                </div>
-
-                <div onclick="openLightbox('pic5.jpg')" class="bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform -rotate-3 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
-                    <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
-                        <img src="pic5.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+5'" class="w-full h-full object-cover" alt="Moment 5">
-                    </div>
-                </div>
-
-                <div onclick="openLightbox('pic6.jpg')" class="bg-matcha-cream p-4 rounded-md shadow-xl text-matcha-base transform rotate-1 hover:rotate-0 transition-all duration-300 cursor-pointer hover:scale-105">
-                    <div class="w-full h-56 bg-matcha-card rounded overflow-hidden">
-                        <img src="pic6.jpg" onerror="this.src='https://placehold.co/400x400/1a221b/c3d6b3?text=Moment+6'" class="w-full h-full object-cover" alt="Moment 6">
-                    </div>
-                </div>
             </div>
         </section>
 
